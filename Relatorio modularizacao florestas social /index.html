@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Relatório de Modularização — Florestas.Social Protocol</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --green-dark: #0A2E1A;
+    --green-mid: #1B5E35;
+    --green-accent: #2E8B54;
+    --green-light: #4CAF78;
+    --green-pale: #D4EDDA;
+    --amber: #D4820A;
+    --amber-light: #FEF3DC;
+    --red: #B22222;
+    --red-light: #FDEAEA;
+    --blue: #1A4A7A;
+    --blue-light: #E8F0FB;
+    --ink: #1A1A1A;
+    --ink-mid: #3D3D3D;
+    --ink-muted: #6B6B6B;
+    --rule: #C8D8C0;
+    --bg: #F8FAF7;
+    --surface: #FFFFFF;
+    --surface2: #F2F6F1;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--green-dark);
+    color: white;
+    padding: 4rem 3rem 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 40%;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .header-kicker {
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--green-light);
+    font-weight: 500;
+    margin-bottom: 1rem;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.15;
+    max-width: 680px;
+    margin-bottom: 1.25rem;
+  }
+  .header h1 em {
+    font-style: italic;
+    color: var(--green-light);
+  }
+  .header-sub {
+    font-size: 14px;
+    color: rgba(255,255,255,0.65);
+    max-width: 560px;
+    line-height: 1.6;
+  }
+  .header-meta {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.12);
+  }
+  .meta-item { font-size: 12px; color: rgba(255,255,255,0.5); }
+  .meta-item strong { display: block; color: rgba(255,255,255,0.85); font-weight: 500; font-size: 13px; }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 920px; margin: 0 auto; padding: 0 2rem; }
+
+  /* ── EXEC SUMMARY ── */
+  .exec-summary {
+    background: var(--green-mid);
+    color: white;
+    padding: 2rem 3rem;
+  }
+  .exec-summary p {
+    font-size: 16px;
+    line-height: 1.8;
+    max-width: 720px;
+    opacity: 0.9;
+  }
+  .exec-summary strong { color: var(--green-light); font-weight: 600; }
+
+  /* ── BODY ── */
+  .body { padding: 3rem 2rem; max-width: 920px; margin: 0 auto; }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 3.5rem; }
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--green-accent);
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  .section h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--green-dark);
+    margin-bottom: 1rem;
+    line-height: 1.2;
+  }
+  .section h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--green-dark);
+    margin: 1.75rem 0 0.6rem;
+  }
+  .section p { color: var(--ink-mid); margin-bottom: 1rem; }
+
+  /* ── ARCHITECTURE CARD ── */
+  .arch-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .arch-card {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 1.25rem;
+    position: relative;
+  }
+  .arch-card-tag {
+    display: inline-block;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: var(--green-pale);
+    color: var(--green-mid);
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-bottom: 0.6rem;
+  }
+  .arch-card-tag.rust { background: #FFF0E6; color: #A0440A; }
+  .arch-card-tag.ts { background: var(--blue-light); color: var(--blue); }
+  .arch-card-tag.n8n { background: #EDE8FB; color: #5B34B8; }
+  .arch-card-tag.stripe { background: #EBF3FD; color: #1A5FA0; }
+  .arch-card h4 { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 0.4rem; }
+  .arch-card p { font-size: 12.5px; color: var(--ink-muted); margin: 0; line-height: 1.55; }
+
+  /* ── PRO / CON CARDS ── */
+  .verdict-banner {
+    display: flex;
+    gap: 1rem;
+    margin: 1.5rem 0 2rem;
+  }
+  .verdict-pill {
+    flex: 1;
+    padding: 1.25rem 1.5rem;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .verdict-pill.pro { background: #E9F7EF; border-left: 4px solid #2E8B54; color: #1B5E35; }
+  .verdict-pill.con { background: #FDF0F0; border-left: 4px solid #C0392B; color: #7B1818; }
+  .verdict-pill.neu { background: var(--amber-light); border-left: 4px solid var(--amber); color: #7A4A00; }
+  .verdict-pill strong { display: block; font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+
+  /* ── PRO LIST ── */
+  .pro-list, .con-list { list-style: none; display: flex; flex-direction: column; gap: 0.9rem; margin: 1.25rem 0; }
+  .pro-list li, .con-list li {
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--ink-mid);
+    line-height: 1.6;
+    position: relative;
+    padding-left: 2.75rem;
+  }
+  .pro-list li { background: #F0FAF4; border: 1px solid #C1E0CA; }
+  .con-list li { background: #FDF3F3; border: 1px solid #EABABA; }
+  .pro-list li::before { content: '✓'; position: absolute; left: 1rem; color: #2E8B54; font-weight: 700; font-size: 15px; }
+  .con-list li::before { content: '✗'; position: absolute; left: 1rem; color: #C0392B; font-weight: 700; font-size: 15px; }
+  .pro-list li strong, .con-list li strong { color: var(--ink); font-weight: 600; }
+
+  /* ── DIMENSION TABLE ── */
+  .dim-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    margin: 1.5rem 0;
+    background: var(--surface);
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+  }
+  .dim-table th {
+    background: var(--green-dark);
+    color: white;
+    padding: 10px 14px;
+    text-align: left;
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+  }
+  .dim-table td { padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; color: var(--ink-mid); }
+  .dim-table tr:last-child td { border-bottom: none; }
+  .dim-table tr:nth-child(even) td { background: var(--surface2); }
+  .dim-table td:first-child { font-weight: 600; color: var(--ink); }
+  .tag-pro { color: #2E8B54; font-weight: 600; }
+  .tag-con { color: #C0392B; font-weight: 600; }
+  .tag-neu { color: var(--amber); font-weight: 600; }
+
+  /* ── PHASE GRID ── */
+  .phase-grid { display: flex; flex-direction: column; gap: 1px; margin: 1.5rem 0; }
+  .phase-row {
+    display: grid;
+    grid-template-columns: 28px 140px 1fr;
+    gap: 1rem;
+    align-items: start;
+    padding: 1rem;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+  }
+  .phase-num {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: var(--green-mid);
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .phase-label { font-size: 13px; font-weight: 600; color: var(--ink); padding-top: 3px; }
+  .phase-desc { font-size: 13px; color: var(--ink-muted); line-height: 1.55; }
+
+  /* ── VERDICT ── */
+  .verdict-box {
+    background: var(--green-dark);
+    color: white;
+    border-radius: 12px;
+    padding: 2rem 2.5rem;
+    margin: 2.5rem 0;
+  }
+  .verdict-box h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: var(--green-light);
+  }
+  .verdict-box p { color: rgba(255,255,255,0.8); font-size: 14.5px; margin-bottom: 0.8rem; }
+
+  /* ── RISK MATRIX ── */
+  .risk-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .risk-card {
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    border: 1px solid;
+    font-size: 13.5px;
+  }
+  .risk-card h4 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 0.5rem; }
+  .risk-card p { color: var(--ink-mid); font-size: 13px; line-height: 1.5; margin: 0; }
+  .risk-high { background: #FDF3F3; border-color: #E8AAAA; }
+  .risk-high h4 { color: #9B1C1C; }
+  .risk-med { background: var(--amber-light); border-color: #F0C97A; }
+  .risk-med h4 { color: #7A4A00; }
+  .risk-low { background: #F0FAF4; border-color: #A8D9B8; }
+  .risk-low h4 { color: #1B5E35; }
+
+  /* ── QUOTE ── */
+  .callout {
+    border-left: 3px solid var(--green-accent);
+    padding: 1rem 1.5rem;
+    background: #F0FAF4;
+    border-radius: 0 8px 8px 0;
+    margin: 1.5rem 0;
+    font-size: 14px;
+    color: var(--ink-mid);
+    font-style: italic;
+  }
+  .callout strong { color: var(--green-mid); font-style: normal; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 2.5rem 0;
+  }
+
+  /* ── FOOTER ── */
+  .footer {
+    background: var(--green-dark);
+    color: rgba(255,255,255,0.45);
+    text-align: center;
+    padding: 2rem;
+    font-size: 12px;
+    margin-top: 3rem;
+  }
+
+  @media (max-width: 600px) {
+    .header { padding: 2.5rem 1.5rem 2rem; }
+    .body { padding: 2rem 1rem; }
+    .risk-grid { grid-template-columns: 1fr; }
+    .verdict-banner { flex-direction: column; }
+    .phase-row { grid-template-columns: 28px 1fr; }
+    .phase-label { grid-column: 2; }
+    .phase-desc { grid-column: 2; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="container">
+    <div class="header-kicker">🌳 Análise Técnica Estratégica · Florestas.Social Protocol</div>
+    <h1>Modularizar ou não modularizar? <em>Um diagnóstico honesto</em></h1>
+    <p class="header-sub">Análise dos prós e contras de adotar uma arquitetura modular no Social Forest Protocol — considerando o repositório atual, os documentos técnicos (V13, SBT v14.1, SBT Empresa v2, dNFT v3) e o Projeto Executivo v3.0.</p>
+    <div class="header-meta">
+      <div class="meta-item"><strong>Repositório</strong>G0vermind/social-forests-protocol</div>
+      <div class="meta-item"><strong>Documentos analisados</strong>5 especificações técnicas</div>
+      <div class="meta-item"><strong>Data do relatório</strong>Maio de 2026</div>
+      <div class="meta-item"><strong>Fase do projeto</strong>🔨 Phase 1 — Seed (Testnet)</div>
+    </div>
+  </div>
+</div>
+
+<!-- EXEC SUMMARY -->
+<div class="exec-summary">
+  <div class="container">
+    <p><strong>Conclusão executiva:</strong> O projeto já possui uma separação natural de domínios — contratos Soroban em Rust, frontend Next.js, oráculos em n8n e gateway Stripe — o que torna a modularização uma extensão lógica, não uma ruptura. Os benefícios são reais e crescem com a escala. Porém, para uma equipe de 4 pessoas em Phase 1, uma modularização prematura ou excessivamente granular pode paralisar o desenvolvimento antes do primeiro cliente real. A recomendação é modularizar <strong>progressivamente e por domínio de negócio</strong>, não por camada técnica.</p>
+  </div>
+</div>
+
+<div class="body">
+
+  <!-- ── SEÇÃO 1: ESTADO ATUAL ── -->
+  <div class="section">
+    <div class="section-label">Seção 01</div>
+    <h2>Diagnóstico da Arquitetura Atual</h2>
+    <p>O repositório <code>social-forests-protocol</code> já carrega embrionariamente uma lógica modular — o workspace Cargo com contratos separados é o sinal mais claro disso. Mas há tensões importantes entre o que está documentado e o que está implementado.</p>
+
+    <h3>O que existe hoje (Phase 1)</h3>
+    <div class="arch-grid">
+      <div class="arch-card">
+        <span class="arch-card-tag rust">Rust / Soroban</span>
+        <h4>rwa_vault</h4>
+        <p>Token RWA SEP-41 (MOGNO). admin_mint gated pelo oráculo PoF. Implementado e em teste na Testnet.</p>
+      </div>
+      <div class="arch-card">
+        <span class="arch-card-tag rust">Rust / Soroban</span>
+        <h4>sbt_reputation</h4>
+        <p>Motor de Green Cashback + SBT não-transferível do Guardião. Implementado, base do SBT v14.1 e da especificação de gamificação.</p>
+      </div>
+      <div class="arch-card">
+        <span class="arch-card-tag rust">Rust / Soroban</span>
+        <h4>sbt_empresa, hero_journey, leaf_token</h4>
+        <p>Contratos presentes no Cargo.toml mas sem código consolidado. Documentados separadamente (SBT Empresa v2, dNFT v3).</p>
+      </div>
+      <div class="arch-card">
+        <span class="arch-card-tag ts">TypeScript / Next.js</span>
+        <h4>Frontend (src/app)</h4>
+        <p>Dashboard B2B2C unificado. Código ainda monolítico — sem separação clara de módulos B2B/B2C no repo.</p>
+      </div>
+      <div class="arch-card">
+        <span class="arch-card-tag n8n">n8n / Automação</span>
+        <h4>pof_oracle</h4>
+        <p>Orquestrador PoF que dispara admin_mint e distribute_green_cashback. Referenciado na estrutura mas não commitado.</p>
+      </div>
+      <div class="arch-card">
+        <span class="arch-card-tag stripe">Stripe MPP / x402</span>
+        <h4>stripe_gateway</h4>
+        <p>On-ramp fiat → RWA para empresas. Integração planejada; documentação detalhada no Projeto Executivo.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>Observação crítica:</strong> Os documentos técnicos já foram modularizados conceitualmente — cada PDF cobre um escopo específico (SBT do Guardião ≠ SBT da Empresa ≠ dNFT). O código, porém, ainda não reflete essa separação com a mesma clareza. Isso é o sinal mais forte de que a modularização já está acontecendo na camada conceitual, e o código precisa convergir para ela.
+    </div>
+
+    <h3>Contratos no roadmap (ainda não implementados)</h3>
+    <p>governance/ ($FLORA), c_cred/ (crédito de carbono ex-post), c_debt/ (ledger corporativo) e amm_impact/ (DeFi não-especulativo) estão projetados para Phase 3. Esses módulos futuros são o principal argumento a favor de uma arquitetura modular bem definida hoje.</p>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── SEÇÃO 2: PRÓS ── -->
+  <div class="section">
+    <div class="section-label">Seção 02</div>
+    <h2>Prós da Modularização</h2>
+
+    <div class="verdict-banner">
+      <div class="verdict-pill pro"><strong>8 benefícios estruturais</strong>Crescem com a escala do protocolo</div>
+      <div class="verdict-pill neu"><strong>3 benefícios condicionais</strong>Dependem de timing e tamanho do time</div>
+    </div>
+
+    <h3>1. Alinhamento natural com os domínios do negócio</h3>
+    <p>O protocolo já opera com personas e contratos distintos: Guardião (B2C), Empresa (B2B), Admin (Social Forest), DAO ($FLORA). Cada uma tem seu SBT, seu contrato, sua jornada. Modularizar o código nessas fronteiras naturais <em>reduz a carga cognitiva</em> de qualquer dev que entre no projeto — ele sabe exatamente onde olhar para um bug no cashback corporativo sem precisar entender a gamificação do Guardião.</p>
+    <ul class="pro-list">
+      <li><strong>Separação sbt_reputation / sbt_empresa / hero_journey já no Cargo.toml</strong> — o workspace Rust demonstra que o time intuitivamente entendeu isso. A modularização formal apenas consolida o que já existe.</li>
+      <li><strong>Documentação já é modular</strong> — os 5 documentos técnicos foram escritos com escopos explicitamente separados. Código modular = documentação e código em sincronia.</li>
+      <li><strong>Auditoria de smart contracts é por contrato</strong> — auditorias de segurança em Soroban são feitas por WASM compilado. Contratos menores e focados custam menos para auditar e têm superfície de ataque reduzida.</li>
+    </ul>
+
+    <h3>2. Implantação e upgrade independentes</h3>
+    <p>Na blockchain Stellar, cada contrato Soroban tem seu próprio endereço e ciclo de vida. Contratos modulares permitem que o time faça upgrade do mecanismo de cashback sem tocar no RWA vault, ou implante o c_debt na Phase 3 sem redeployar tudo. Isso é especialmente crítico porque smart contracts em produção com TVL real não podem ser simplesmente "atualizados" como uma API.</p>
+    <ul class="pro-list">
+      <li><strong>rwa_vault e sbt_reputation já são implantados separadamente</strong> — o padrão está estabelecido, só precisa ser mantido.</li>
+      <li><strong>Governança progressiva fica mais fácil</strong> — a transição do Core Team para a DAO ($FLORA) no roadmap exige que o contrato de governança possa ser adicionado sem substituir tudo.</li>
+    </ul>
+
+    <h3>3. Testabilidade por domínio</h3>
+    <p>Os testes mostrados no README são por contrato (<code>cargo test --manifest-path contracts/rwa_vault/Cargo.toml</code>). Módulos separados permitem test suites isolados — se um teste do leaf_token falha, ele não bloqueia o CI do rwa_vault. Para um projeto com 5+ contratos em roadmap, isso é fundamental.</p>
+    <ul class="pro-list">
+      <li><strong>Mock de dependências inter-contratos</strong> — um módulo pode mockar o oráculo PoF para testar o fluxo de mint sem depender do n8n rodando.</li>
+      <li><strong>Frontend pode ser testado contra contratos stub</strong> — a interface B2C não precisa de uma Testnet viva para rodar seus testes unitários.</li>
+    </ul>
+
+    <h3>4. Onboarding de desenvolvedores</h3>
+    <p>A equipe atual é pequena (4 devs, 2 conselheiros técnicos). Com a modularização, um novo dev contratado para trabalhar no AMM de Impacto (Phase 3) não precisa entender toda a gamificação do Guardião para começar a contribuir. Cada módulo tem seu próprio SKILL.md (ou equivalente), README, e fronteiras claras.</p>
+    <ul class="pro-list">
+      <li><strong>O CONTRIBUTING.md já existe</strong> — a cultura de documentação está estabelecida. Módulos com READMEs próprios é a extensão natural.</li>
+      <li><strong>Diferentes linguagens de domínio</strong> — o time de ambiental/ESG fala diferente do time de DeFi. Módulos permitem que cada grupo "possua" seu código sem bloquear os outros.</li>
+    </ul>
+
+    <h3>5. Estratégia de open source e protocolo aberto</h3>
+    <p>O roadmap menciona explicitamente que o protocolo é "infraestrutura NbS aberta para qualquer empresa integrar via x402". Módulos bem definidos permitem que terceiros usem apenas o c_cred ou apenas o sbt_empresa sem precisar forkear todo o monorepo. Isso é o que torna um protocolo verdadeiramente componível.</p>
+    <ul class="pro-list">
+      <li><strong>NPM packages para os módulos TypeScript</strong> — serviços como stripe_gateway e pof_oracle poderiam ser publicados como pacotes reutilizáveis.</li>
+      <li><strong>Contratos publicados no Stellar mainnet como endereços canônicos</strong> — qualquer empresa poderia integrar o c_debt sem rodar o stack completo.</li>
+    </ul>
+
+    <h3>6. Segurança e princípio do mínimo privilégio</h3>
+    <p>No contexto de smart contracts com valor financeiro real (RWA lastreado em árvores físicas), módulos separados reduzem o risco de exploits em cascata. Se um vetor de ataque for descoberto no leaf_token, ele não compromete automaticamente o rwa_vault.</p>
+    <ul class="pro-list">
+      <li><strong>Já implementado na lógica do sbt_reputation</strong> — o transfer_reputation() sempre faz panic (SoulboundNonTransferable). Módulo separado = garantia isolada, não misturada com lógica de cashback.</li>
+      <li><strong>require_auth por contrato</strong> — cada contrato valida suas próprias permissões sem depender de uma camada central de autorização que seria um ponto único de falha.</li>
+    </ul>
+
+    <h3>7. Escalabilidade do frontend B2B2C</h3>
+    <p>O dashboard B2B e a carteira B2C têm UX completamente diferentes — um é para o CFO de uma empresa configurando cashback por SKU, o outro é um Viveiro Digital gamificado para consumidores. Modularizar o frontend (ex: Next.js com App Router por segmento) permite deploys independentes, bundles menores e experiências otimizadas por persona.</p>
+    <ul class="pro-list">
+      <li><strong>Route groups no Next.js App Router</strong> — <code>/app/(b2b)/dashboard</code> e <code>/app/(b2c)/viveiro</code> são módulos naturais que podem ter seus próprios layouts, autenticações e bundles.</li>
+    </ul>
+
+    <h3>8. Preparação para a DAO e governança descentralizada</h3>
+    <p>A transição para governança via $FLORA exige que o protocolo seja auditável por terceiros. Módulos com contratos bem definidos, eventos on-chain claros e interfaces estáveis permitem que os detentores de $FLORA entendam exatamente o que estão votando para mudar.</p>
+    <ul class="pro-list">
+      <li><strong>Buffer Pools e Reserve Buffers</strong> — mencionados no roadmap, precisam de contratos próprios com lógica isolada para auditoria do Permanence Reversal Buffer ser confiável.</li>
+    </ul>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── SEÇÃO 3: CONTRAS ── -->
+  <div class="section">
+    <div class="section-label">Seção 03</div>
+    <h2>Contras da Modularização</h2>
+
+    <div class="verdict-banner">
+      <div class="verdict-pill con"><strong>7 riscos reais</strong>Especialmente críticos em Phase 1</div>
+      <div class="verdict-pill neu"><strong>4 riscos contingentes</strong>Mitigáveis com a abordagem certa</div>
+    </div>
+
+    <h3>1. Overhead de coordenação entre módulos</h3>
+    <p>O maior custo da modularização não é técnico — é humano. Quando um comportamento exige mudança em 3 contratos e 2 serviços (ex: um novo tipo de Folha que afeta leaf_token, hero_journey, sbt_reputation e o frontend), o time precisa coordenar releases sincronizados. Para 4 devs em Phase 1, isso pode ser mais pesado do que parece.</p>
+    <ul class="con-list">
+      <li><strong>Cross-module changes são as mais perigosas em produção</strong> — se o rwa_vault e o sbt_reputation precisam ser atualizados juntos mas são deployados em versões diferentes, o protocolo fica em estado inconsistente. Sem boas práticas de versionamento, isso quebra o sistema.</li>
+      <li><strong>Interfaces entre contratos precisam ser estáveis ou versionadas</strong> — uma mudança na assinatura de distribute_green_cashback() quebra qualquer serviço que a chame. Contratos imutáveis na blockchain tornam isso ainda mais crítico.</li>
+    </ul>
+
+    <h3>2. Risco de over-engineering em Phase 1</h3>
+    <p>O projeto está em "🔨 Building — Phase 1 Seed". O Viveiro Maravilha ainda é o "Cliente Zero". Neste estágio, a prioridade máxima é validar o modelo B2B2C com um parceiro real, não construir a arquitetura perfeita para 10 anos.</p>
+    <ul class="con-list">
+      <li><strong>Módulos demais antes da estabilização dos requisitos</strong> — se o mercado exigir uma mudança no modelo de Folhas (Common/Rare/Legendary), refatorar interfaces entre 5 módulos é mais custoso do que refatorar um único contrato coeso.</li>
+      <li><strong>Risco de "astronaut architecture"</strong> — construir para escala antes de ter o problema de escala. O protocolo tem 1 star no GitHub e 0 forks. A urgência de uma arquitetura distribuída de nível produção ainda precisa ser validada pelo mercado.</li>
+    </ul>
+
+    <h3>3. Complexidade de testes de integração</h3>
+    <p>Módulos individuais são fáceis de testar em isolamento. Mas o fluxo completo — empresa compra RWA via Stripe → n8n dispara mint → usuário recebe cashback via sbt_reputation → SBT evolui no hero_journey — envolve todos os módulos. Testes de integração em ambiente modular exigem infraestrutura de orquestração que demora para madurar.</p>
+    <ul class="con-list">
+      <li><strong>Testnet da Stellar tem limitações</strong> — coordenar múltiplos contratos deployados em testnet com dados reais de PoF oracle e integração Stripe é intrinsecamente mais complexo que testar um sistema coeso.</li>
+      <li><strong>Estado distribuído é difícil de debugar</strong> — quando algo falha no fluxo completo, identificar qual módulo causou o problema requer logging e observabilidade distribuída — outra camada de complexidade a construir.</li>
+    </ul>
+
+    <h3>4. Custos de gas e eficiência on-chain</h3>
+    <p>Na Stellar Soroban, chamadas entre contratos (cross-contract calls) têm custo adicional de gas. Um fluxo que poderia ser executado em uma única transação num contrato monolítico pode requerer múltiplas transações em uma arquitetura modular, aumentando custos para os usuários e a latência da experiência.</p>
+    <ul class="con-list">
+      <li><strong>Green Cashback de alta frequência</strong> — o roadmap menciona Channel Accounts para processamento simultâneo. Cada distribute_green_cashback() que envolve múltiplos contratos multiplica o custo por evento.</li>
+      <li><strong>Composabilidade on-chain tem custo</strong> — chamadas de leitura entre contratos (get_user_impact()) são gratuitas, mas writes compostos são mais caros. É necessário benchmarking antes de modularizar fluxos write-heavy.</li>
+    </ul>
+
+    <h3>5. Documentação e manutenção de interfaces públicas</h3>
+    <p>Cada módulo com interface pública exige documentação de API que precisa ser mantida versionada e sincronizada com o código. Para um time pequeno já com 5 especificações técnicas densas para manter (V13, SBT v14.1, SBT Empresa v2, dNFT v3, Projeto Executivo v3), adicionar documentação de interfaces inter-módulos pode ser um peso desproporcional.</p>
+    <ul class="con-list">
+      <li><strong>Os documentos já chegaram à versão 13-14 sem o código ter chegado lá</strong> — há uma dívida de alinhamento entre spec e implementação que a modularização pode agravar se não houver disciplina de atualização.</li>
+    </ul>
+
+    <h3>6. Onboarding paradoxal em times pequenos</h3>
+    <p>A modularização melhora onboarding em times médios/grandes. Em times muito pequenos (2-3 devs ativos), o overhead de entender as fronteiras entre módulos pode ser maior do que simplesmente ler o código completo.</p>
+    <ul class="con-list">
+      <li><strong>Risco de "silos de conhecimento artificiais"</strong> — se um dev "possui" o módulo de gamificação e outro "possui" o RWA vault, perder qualquer um deles cria uma lacuna difícil de preencher num projeto com documentação ainda em formação.</li>
+    </ul>
+
+    <h3>7. Gerenciamento de versões e compatibilidade</h3>
+    <p>O soroban-sdk está em v25.3.1 (anotado no Cargo.toml). A Stellar tem historial de breaking changes em versões menores do SDK. Com múltiplos contratos, cada upgrade do SDK precisa ser aplicado, testado e deployado em todos os módulos simultaneamente — o que é muito mais trabalhoso do que atualizar um único workspace.</p>
+    <ul class="con-list">
+      <li><strong>Contrato florestas-protocol no workspace</strong> — parece ser um contrato "guarda-chuva" ou de integração. Se ele acumular lógica de diferentes domínios para evitar o custo de manutenção multi-módulo, derrota o propósito da modularização.</li>
+    </ul>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── SEÇÃO 4: ANÁLISE COMPARATIVA ── -->
+  <div class="section">
+    <div class="section-label">Seção 04</div>
+    <h2>Análise por Dimensão</h2>
+
+    <table class="dim-table">
+      <thead>
+        <tr>
+          <th>Dimensão</th>
+          <th>Monolítico</th>
+          <th>Modular</th>
+          <th>Veredito Phase 1</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Velocidade de desenvolvimento</td>
+          <td>Mais rápido no início — menos coordenação</td>
+          <td>Mais lento no início, mais rápido ao escalar</td>
+          <td class="tag-neu">⚡ Depende do ritmo</td>
+        </tr>
+        <tr>
+          <td>Segurança dos contratos</td>
+          <td>Superfície de ataque maior; bug propaga</td>
+          <td>Isolamento de falhas; auditoria focada</td>
+          <td class="tag-pro">✓ Pró-modular</td>
+        </tr>
+        <tr>
+          <td>Custo de gas (Soroban)</td>
+          <td>Menor em operações compostas</td>
+          <td>Maior em cross-contract calls</td>
+          <td class="tag-con">✗ Contra-modular</td>
+        </tr>
+        <tr>
+          <td>Testabilidade unitária</td>
+          <td>Difícil isolar comportamentos</td>
+          <td>Excelente por módulo; complexa integração</td>
+          <td class="tag-pro">✓ Pró-modular</td>
+        </tr>
+        <tr>
+          <td>Onboarding de novos devs</td>
+          <td>Melhor para times ≤ 4 pessoas</td>
+          <td>Melhor para times ≥ 6 pessoas</td>
+          <td class="tag-neu">⚡ Neutro no momento</td>
+        </tr>
+        <tr>
+          <td>Upgrade de contratos em produção</td>
+          <td>Arriscado — tudo ou nada</td>
+          <td>Granular — módulo por módulo</td>
+          <td class="tag-pro">✓ Pró-modular</td>
+        </tr>
+        <tr>
+          <td>Adaptação a mudanças de produto</td>
+          <td>Mais fácil em Phase 1 (pouca interface)</td>
+          <td>Mais difícil — interfaces precisam ser estáveis</td>
+          <td class="tag-con">✗ Contra-modular (Phase 1)</td>
+        </tr>
+        <tr>
+          <td>Abertura do protocolo para terceiros</td>
+          <td>Difícil — terceiros precisam de tudo</td>
+          <td>Excelente — uso seletivo de módulos</td>
+          <td class="tag-pro">✓ Pró-modular (Phase 2+)</td>
+        </tr>
+        <tr>
+          <td>Manutenção de documentação técnica</td>
+          <td>Centralizada, mais fácil de manter</td>
+          <td>Distribuída, exige disciplina de sync</td>
+          <td class="tag-neu">⚡ Risco real dado histórico</td>
+        </tr>
+        <tr>
+          <td>Compatibilidade com modelo DAO</td>
+          <td>Difícil de governar partes separadas</td>
+          <td>Cada módulo pode ter sua própria governança</td>
+          <td class="tag-pro">✓ Pró-modular (Phase 3)</td>
+        </tr>
+        <tr>
+          <td>Observabilidade e debugging</td>
+          <td>Simples — logs centralizados</td>
+          <td>Complexo — requer rastreabilidade distribuída</td>
+          <td class="tag-con">✗ Contra-modular</td>
+        </tr>
+        <tr>
+          <td>Alinhamento com as specs técnicas</td>
+          <td>Conflito — docs já são modulares por escopo</td>
+          <td>Natural — código reflete os 5 documentos</td>
+          <td class="tag-pro">✓ Pró-modular</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── SEÇÃO 5: RISCOS ── -->
+  <div class="section">
+    <div class="section-label">Seção 05</div>
+    <h2>Matriz de Riscos</h2>
+    <p>Os riscos mais críticos na decisão de modularizar — avaliados pelo contexto atual do projeto:</p>
+
+    <div class="risk-grid">
+      <div class="risk-card risk-high">
+        <h4>🔴 Risco Alto — Interfaces instáveis</h4>
+        <p>Contratos em Phase 1 ainda estão em refinamento (SBT já está na v14.1 do documento!). Definir interfaces fixas agora pode forçar migrações caras ou arquiteturas de compatibilidade desnecessárias em Testnet.</p>
+      </div>
+      <div class="risk-card risk-high">
+        <h4>🔴 Risco Alto — Inconsistência doc/código</h4>
+        <p>Os documentos técnicos chegaram à versão 13-14, mas o código ainda não implementa toda a especificação. A modularização pode ampliar essa dívida se não houver processo de sync claro.</p>
+      </div>
+      <div class="risk-card risk-med">
+        <h4>🟡 Risco Médio — Cross-contract gas</h4>
+        <p>O modelo de Green Cashback de alta frequência pode ser economicamente inviável se cada evento exigir múltiplas chamadas cross-contract no Soroban. Benchmarking antes de modularizar fluxos críticos.</p>
+      </div>
+      <div class="risk-card risk-med">
+        <h4>🟡 Risco Médio — Conhecimento concentrado</h4>
+        <p>Com 4 devs e módulos especializados, a saída de uma pessoa pode deixar um módulo inteiro sem maintainer. Documentação de módulo é necessária mas aumenta o overhead do time.</p>
+      </div>
+      <div class="risk-card risk-med">
+        <h4>🟡 Risco Médio — Versionamento do SDK</h4>
+        <p>Upgrades do soroban-sdk 25.x.y precisam ser aplicados em todos os módulos. Com 6+ contratos, cada upgrade é uma tarefa de coordenação que pode atrasar entregas de feature.</p>
+      </div>
+      <div class="risk-card risk-low">
+        <h4>🟢 Risco Baixo — Adoção por terceiros</h4>
+        <p>O risco de interfaces públicas instáveis para terceiros é baixo em Phase 1 porque não há ainda parceiros técnicos externos. A janela para definir boas interfaces existe sem pressão de retrocompatibilidade.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── SEÇÃO 6: RECOMENDAÇÕES ── -->
+  <div class="section">
+    <div class="section-label">Seção 06</div>
+    <h2>Recomendações Práticas — Modularização Progressiva</h2>
+    <p>A abordagem mais robusta para o contexto atual é uma <strong>modularização progressiva orientada por domínio de negócio</strong>, não por camada técnica. O critério de separação deve ser: <em>"esse módulo pode ser deployado, testado e governado de forma independente?"</em></p>
+
+    <div class="phase-grid">
+      <div class="phase-row">
+        <div class="phase-num">1</div>
+        <div class="phase-label">Agora (Phase 1)</div>
+        <div class="phase-desc">Consolidar o que existe: garantir que rwa_vault e sbt_reputation têm testes completos, interfaces documentadas (traits Rust explícitos) e eventos on-chain bem definidos. Não criar novos módulos antes do Viveiro Maravilha ser validado como Cliente Zero.</div>
+      </div>
+      <div class="phase-row">
+        <div class="phase-num">2</div>
+        <div class="phase-label">Phase 1 → 2 (transição)</div>
+        <div class="phase-desc">Separar o frontend em route groups distintos para B2B (dashboard do parceiro) e B2C (Viveiro Digital). Implementar sbt_empresa como contrato separado — já tem especificação própria (v2.0) e domínio claramente distinto do sbt_reputation. Definir a interface formal do pof_oracle como módulo independente do n8n.</div>
+      </div>
+      <div class="phase-row">
+        <div class="phase-num">3</div>
+        <div class="phase-label">Phase 2 — Crescimento</div>
+        <div class="phase-desc">Adicionar hero_journey (dNFT v3 está pronto) e leaf_token com interfaces estáveis. Publicar o stripe_gateway como pacote reutilizável documentado. Implementar observabilidade distribuída antes de ter múltiplos contratos em produção na Mainnet.</div>
+      </div>
+      <div class="phase-row">
+        <div class="phase-num">4</div>
+        <div class="phase-label">Phase 3 — Escala / DAO</div>
+        <div class="phase-desc">Contratos governance, c_cred, c_debt e amm_impact como módulos completamente independentes com suas próprias suites de teste, auditorias separadas e versionamento semântico. Neste ponto, a arquitetura modular paga dividendos máximos pois cada contrato pode ser governado por proposta DAO independente.</div>
+      </div>
+    </div>
+
+    <h3>Princípios para guiar a modularização</h3>
+    <ul class="pro-list">
+      <li><strong>Módulo = domínio de negócio, não camada técnica</strong> — não separar por "contratos" vs "frontend" vs "services", mas por "fluxo do Guardião" vs "fluxo da Empresa" vs "auditoria climática".</li>
+      <li><strong>Interface first, implementação depois</strong> — antes de criar um módulo, definir seu contrato público (trait Rust ou tipo TypeScript exportado) e testá-lo com um mock. Isso força clareza de fronteiras.</li>
+      <li><strong>Evento on-chain como contrato de integração</strong> — módulos que precisam se comunicar devem fazê-lo preferencialmente via eventos Soroban, não chamadas diretas. Isso reduz acoplamento e torna fluxos auditáveis.</li>
+      <li><strong>Benchmarking de gas antes de modularizar fluxos write-heavy</strong> — especialmente o distribute_green_cashback() que pode ser chamado com alta frequência. Medir o custo antes de decidir se ele deve ser um módulo separado ou internalizado.</li>
+      <li><strong>Versionamento semântico (semver) desde o início</strong> — cada módulo com sua própria versão no Cargo.toml. Facilita identificar breaking changes e coordenar upgrades.</li>
+    </ul>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ── VEREDITO ── -->
+  <div class="verdict-box">
+    <h2>🌳 Veredito Final</h2>
+    <p><strong>Modularize — mas com critério e timing.</strong> A arquitetura do Social Forest Protocol já é naturalmente modular em sua essência: 5 tokens distintos, 3 personas, múltiplas fases de roadmap com contratos independentes. Resistir à modularização seria nadar contra a corrente da própria visão do projeto.</p>
+    <p>O risco real não é modularizar — é modularizar <em>cedo demais, granular demais, ou pelas razões erradas</em>. A distinção sbt_reputation (B2C/Guardião) e sbt_empresa (B2B/Empresa) já está corretamente separada na documentação e deve ser espelhada no código o quanto antes — esses são domínios genuinamente distintos com governança e ciclos de vida diferentes.</p>
+    <p>Contratos futuros como c_cred, c_debt e amm_impact devem nascer como módulos, pois estarão em Phase 3 num ecossistema já estável onde interfaces instáveis causam mais dano.</p>
+    <p><strong>O critério de decisão mais simples:</strong> Se um módulo pode falhar, ser auditado, ser governado pela DAO, ou ser usado por terceiros de forma independente — ele merece ser um módulo. Se não, ele é implementação interna de um módulo maior.</p>
+  </div>
+
+</div>
+
+<div class="footer">
+  Relatório gerado com base na análise do repositório github.com/G0vermind/social-forests-protocol e dos documentos técnicos V13.0, SBT v14.1, SBT Empresa v2.0, dNFT v3.0 e Projeto Executivo v3.0 · Florestas.Social Protocol · Maio 2026
+</div>
+
+</body>
+</html>
