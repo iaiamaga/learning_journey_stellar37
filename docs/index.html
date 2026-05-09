@@ -414,7 +414,7 @@
     </div>
 
     <div class="callout">
-      <strong>Observação crítica:</strong> Os documentos técnicos já foram modularizados conceitualmente — cada PDF cobre um escopo específico (SBT do Guardião ≠ SBT da Empresa ≠ dNFT). O código, porém, ainda não reflete essa separação com a mesma clareza. Isso é o sinal mais forte de que a modularização já está acontecendo na camada conceitual, e o código precisa convergir para ela.
+      <strong>Observação crítica:</strong> Os documentos técnicos já foram modularizados conceitualmente — cada PDF cobre um escopo específico (SBT do Guardião ≠ SBT da Empresa ≠ dNFT). O código, porém, ainda não reflete essa separação com a mesma clareza. Isso é o sinal mais forte de que a modularização já está acontecendo na camada conceitual, e o código precisa convergir para ela (porém não na fase1).
     </div>
 
     <h3>Contratos no roadmap (ainda não implementados)</h3>
@@ -710,7 +710,7 @@
 
     <h3>Princípios para guiar a modularização</h3>
     <ul class="pro-list">
-      <li><strong>Módulo = domínio de negócio, não camada técnica</strong> — não separar por "contratos" vs "frontend" vs "services", mas por "fluxo do Guardião" vs "fluxo da Empresa" vs "auditoria climática".</li>
+      <li><strong>Módulo é diferente de monorepo.</li>
       <li><strong>Interface first, implementação depois</strong> — antes de criar um módulo, definir seu contrato público (trait Rust ou tipo TypeScript exportado) e testá-lo com um mock. Isso força clareza de fronteiras.</li>
       <li><strong>Evento on-chain como contrato de integração</strong> — módulos que precisam se comunicar devem fazê-lo preferencialmente via eventos Soroban, não chamadas diretas. Isso reduz acoplamento e torna fluxos auditáveis.</li>
       <li><strong>Benchmarking de gas antes de modularizar fluxos write-heavy</strong> — especialmente o distribute_green_cashback() que pode ser chamado com alta frequência. Medir o custo antes de decidir se ele deve ser um módulo separado ou internalizado.</li>
@@ -724,7 +724,7 @@
   <div class="verdict-box">
     <h2>🌳 Veredito Final</h2>
     <p><strong>Modularize — mas com critério e timing.</strong> A arquitetura do Social Forest Protocol já é naturalmente modular em sua essência: 5 tokens distintos, 3 personas, múltiplas fases de roadmap com contratos independentes. Resistir à modularização seria nadar contra a corrente da própria visão do projeto.</p>
-    <p>O risco real não é modularizar — é modularizar <em>cedo demais, granular demais, ou pelas razões erradas</em>. A distinção sbt_reputation (B2C/Guardião) e sbt_empresa (B2B/Empresa) já está corretamente separada na documentação e deve ser espelhada no código o quanto antes — esses são domínios genuinamente distintos com governança e ciclos de vida diferentes.</p>
+    <p>O risco real não é modularizar — é modularizar <em>cedo demais, granular demais, ou pelas razões erradas</em>. A distinção sbt_reputation (B2C/Guardião) e sbt_empresa (B2B/Empresa) já está corretamente separada na documentação e já estão sendo espelhadas no código — esses são domínios genuinamente distintos com governança e ciclos de vida diferentes.</p>
     <p>Contratos futuros como c_cred, c_debt e amm_impact devem nascer como módulos, pois estarão em Phase 3 num ecossistema já estável onde interfaces instáveis causam mais dano.</p>
     <p><strong>O critério de decisão mais simples:</strong> Se um módulo pode falhar, ser auditado, ser governado pela DAO, ou ser usado por terceiros de forma independente — ele merece ser um módulo. Se não, ele é implementação interna de um módulo maior.</p>
   </div>
