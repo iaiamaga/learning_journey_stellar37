@@ -1,0 +1,19 @@
+{
+  "name": "um",
+  "version": "1.0.0",
+  "description": "",
+  "main": "generate_keypair.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@stellar/stellar-sdk": "^15.0.0",
+    "axios": "^1.16.1",
+    "node-fetch": "^2.7.0",
+    "stellar-sdk": "^13.3.0"
+  }
+}

@@ -1,0 +1,64 @@
+const StellarSdk = require('stellar-sdk');
+
+// Create a server instance for Horizon testnet
+const server = new StellarSdk.Horizon.Server('https://horizon-testnet.stellar.org');
+
+// Replace with your actual secret key and destination public key
+// WARNING: Never commit secret keys to version control!
+const sourceSecret = 'PASTE YOUR SECRET KEY HERE'; // e.g., 'SA...'
+const destPublicKey = 'PASTE THE DESTINATION PUBLIC KEY HERE'; // e.g., 'GD...'
+
+// Validate inputs
+if (!sourceSecret || sourceSecret === 'YOUR_SOURCE_SECRET_KEY') {
+  console.error('Please set your source secret key in the script');
+  process.exit(1);
+}
+if (!destPublicKey || destPublicKey === 'DESTINATION_PUBLIC_KEY') {
+  console.error('Please set the destination public key in the script');
+  process.exit(1);
+}
+
+async function sendPayment() {
+  try {
+    // Create keypair from secret
+    const sourceKeypair = StellarSdk.Keypair.fromSecret(sourceSecret);
+    const sourcePublicKey = sourceKeypair.publicKey();
+
+    // Load the source account from Horizon
+    const sourceAccount = await server.loadAccount(sourcePublicKey);
+    console.log(`Loaded account for ${sourcePublicKey}`);
+
+    // Build the transaction
+    const transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
+      fee: StellarSdk.BASE_FEE,
+      // Use the testnet network passphrase
+      networkPassphrase: 'Test SDF Network ; September 2015'
+    })
+      .addOperation(StellarSdk.Operation.payment({
+        destination: destPublicKey,
+        asset: StellarSdk.Asset.native(),
+        amount: '10' // 10 XLM
+      }))
+      .setTimeout(30) // 30 seconds
+      .build();
+
+    // Sign the transaction
+    transaction.sign(sourceKeypair);
+    console.log('Transaction signed');
+
+    // Submit the transaction
+    const transactionResult = await server.submitTransaction(transaction);
+    console.log('Transaction submitted successfully!');
+    console.log('Transaction hash:', transactionResult.hash);
+    console.log('View on Stellar Explorer: https://stellar.expert/explorer/testnet/tx/' + transactionResult.hash);
+  } catch (error) {
+    console.error('Error:', error);
+    if (error.response) {
+      console.error('Horizon response:', error.response.data);
+    }
+    process.exit(1);
+  }
+}
+
+// Execute the function
+sendPayment();
